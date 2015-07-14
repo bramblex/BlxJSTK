@@ -14,10 +14,10 @@ modules: $(target_files)
 minify: $(mini_target_files) 
 
 $(target_files):dist/%.js:src/%.js
-	umdt $< $@
+	tools/UMDT/umdt $< $@
 
 $(mini_target_files):dist/%.min.js:dist/%.js
-	jscompiler $< $@
+	java -jar tools/compiler/compiler.jar $< --js_output_file=$@
 
 .PHONY: clean
 clean:

@@ -27,7 +27,7 @@
   };
 
   
-define(['Class'], function(Class){
+define(['./Class'], function(Class){
 
   return Class('EventEmitter', Object)
 

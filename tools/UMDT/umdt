@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var path = require('path');
+
+if (process.argv.length != 4){
+  console.log('usage: udmt <source> <target>');
+  process.exit(1);
+}
+
+var wapper_path = path.join(
+  path.resolve(path.dirname(__filename)),
+  'wapper'
+);
+
+var wapper = fs.readFileSync(wapper_path, 'utf8');
+
+var source_path = process.argv[2];
+var target_path = process.argv[3];
+
+var source = fs.readFileSync(source_path, 'utf8');
+var wapper = fs.readFileSync(wapper_path, 'utf8');
+
+var render = function render(wapper, values){
+  return wapper.split('%>').map(function(piece){
+    var p  = piece.split('<%');
+    return (p[0] || '') + ((p[1] && values[p[1].replace(/^\s*(\w+)\s*$/,'$1')]) || '');
+  }).join('');
+};
+
+var target = render(wapper, {target: source});
+fs.writeFileSync(target_path, target, 'utf8');
