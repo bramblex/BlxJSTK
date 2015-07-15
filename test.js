@@ -1,23 +1,21 @@
 
-var Animal = Class('Animal', Object);
+var A = Class('A', Object);
 
-Animal.method('constructor', function(){
-  this.type = 'animal'
-  console.log('Animal constructor');
+A.method('constructor', function(){
+  console.log('A');
 });
 
-Animal.method('fuck', function(){
+var B = A.extend('B');
+B.method('constructor', function(){
+  B.uper('constructor').apply(this, arguments);
+  console.log('B');
 });
 
-var Cat =  Animal.extend('Cat');
 
-Cat.method('constructor', function(name){
-  this.name = name;
-  console.log('Cat constructor')
+var C = B.extend('C');
+C.method('constructor', function(){
+  C.uper('constructor').apply(this, arguments);
+  console.log('C');
 });
 
-Cat.method('miao', function(){
-  console.log('miao');
-});
-
-var kitty = Cat('kitty');
+new C();

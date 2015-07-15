@@ -29,9 +29,10 @@
   
 define(['./Class'], function(Class){
 
-  return Class('EventEmitter', Object)
+  var EventEmitter = Class('EventEmitter', Object)
 
   .method('constructor', function(){
+    EventEmitter.uper('constructor').apply(this);
     this.events = {};
   })
 
@@ -107,13 +108,11 @@ define(['./Class'], function(Class){
   })
 
   .alias('on', 'addListener')
-
   .alias('off', 'removeListener')
-
   .alias('once', 'addOnceListener')
+  .alias('trigger', 'EventEmitter');
 
-  .alias('trigger', 'EventEmitter')
-
+  return EventEmitter;
 });
 
 

@@ -5,7 +5,10 @@ target_files = $(foreach o, $(objects), dist/$(o).js)
 mini_target_files = $(foreach o, $(objects), dist/$(o).min.js)
 
 .PHONY: all 
-all: modules minify
+all: dist/min modules minify
+
+dist/min:
+	@mkdir -p dist/min
 
 .PHONY: modules
 modules: $(target_files) 
@@ -21,4 +24,4 @@ $(mini_target_files):dist/%.min.js:dist/%.js
 
 .PHONY: clean
 clean:
-	rm dist/*
+	rm -r dist

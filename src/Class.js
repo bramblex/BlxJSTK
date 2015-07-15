@@ -14,7 +14,6 @@ define(function(){
 
     if(!this_class.prototype[name] || this_class.prototype[name]['__class__'] !== this_class){
       this_class.prototype[name] = eval(named(this_class.name+'_'+name, function(){
-        //var methods = this.__class__['__methods__'];
         var methods = this_class['__methods__'];
         var method = (methods && ( methods[name][arguments.length] || methods[name][0] ) ) || undefined;
         if (!method)
@@ -42,6 +41,13 @@ define(function(){
     return this;
   };
 
+  var uper = function uper(name){
+    var this_class = this;
+    if (name === 'constructor')
+      name = '__constructor__';
+    return this_class.parent.prototype[name];
+  };
+
   var Class = function Class(name, parent){
 
     var child = eval(named(name, function(){
@@ -60,14 +66,7 @@ define(function(){
         obj = new this_class();
       }
       obj.__class__ = this_class;
-
-      //debugger;
-      (function(this_class, args, obj){
-        if (this_class.parent)
-          arguments.callee(this_class.parent, args, obj);
-        var cons = this_class.prototype['__constructor__'];
-        typeof cons === 'function' && cons.apply(obj, args);
-      })(this_class, arguments, obj);
+      this_class.prototype['__constructor__'].apply(obj, arguments);
 
       return obj;
     }));
@@ -81,7 +80,13 @@ define(function(){
     child.method = method;
     child.extend = extend;
     child.alias = alias;
+    child.uper = uper;
     child.name = name;
+
+    child.method('constructor', function(){
+      if (child.uper('constructor'))
+        child.uper('constructor').apply(this, arguments);
+    });
 
     // init
     return child;

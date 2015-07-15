@@ -27,145 +27,157 @@
   };
 
   
-define(['./EventEmitter', './Class'], function(){
-  //var FSM = EventEmitter.extend('FSM');
+define(['./EventEmitter'], function(EventEmitter){
 
-  //FSM.method('constructor', function(){
+  var rule_regexp = /^\s*([\w\*]+)\s*\(\s*(\w+)\s*\)\s*=>\s*(\w+)\s*$/;
+  var start_regexp = /\*/;
 
-    //this.state = null;
-    //this.__rules__ = {};
-    //this.rules = [];
-  //});
+  // parse rule like "current_state (input) => next_state"
+  var parseRule = function parseRule(rule){
+    var parsed = rule.match(rule_regexp);
 
-  //// current_state ( input ) => next_state
-  //var re = /^\s*([\w\*]+)\s*\(\s*(\w+)\s*\)\s*=>\s*(\w+)\s*$/;
-  //var re_start = /\*/;
+    if (!parsed)
+      throw 'Error: ' + rule;
 
-  //var blocked = function blocked(){
-    //throw 'Error: Function blocked';
-  //};
+    var sing = 'normal';
+    if (start_regexp.test(rule))
+      sign = 'wildcrad';
 
-  //var parse = function parse(rule){
-    //var parsed = rule.match(re);
-    //var sign = (function(){
-      //if (re_start.test(parsed[1]))
-        //return 'regex';
-      //return 'normal';
-    //})();
-    //return {
-      //sign: sign,
-      //input: parsed[2],
-      //current_state: parsed[1],
-      //next_state: parsed[3],
-    //};
-  //};
+    return {
+      sign: sign,
+      input: parsed[2],
+      current_state: parsed[1],
+      next_state: parsed[3]
+    };
+  };
 
-  //var select = function select(list, reg_str){
-    //var r = RegExp('^'+reg_str.replace('*', '\\w+')+'$');
-    //var tmp = [];
-    //list.forEach(function(item){
-      //if(r.test(item))
-        //tmp.push(item);
-    //});
-    //return tmp;
-  //};
+  // uniquefy a array
+  var uniquefy = function uniquefy(array){
+    return array.filter(function(item, index, self){
+      return self.indexOf(item) === index;
+    });
+  };
 
-  //var complie = function complie(_this){
-    //var rules_list = [];
-    //var state_list = [];
-
-    //_this.rules.forEach(function(rule){
-      //var parsed = parse(rule);
-      //var sign = parsed.sign;
-      //var current_state = parsed.current_state;
-      //var next_state = parsed.next_state;
-
-      //if (sign === 'normal' && (state_list.indexOf(current_state) < 0))
-        //state_list.push(current_state);
-
-      //if (state_list.indexOf(next_state) < 0)
-        //state_list.push(next_state);
-
-      //rules_list.push(parsed);
-    //});
-
-    //rules_list.forEach(function(rule){
-      //var sign = rule.sign;
-      //var input = rule.input;
-      //var current_state = rule.current_state;
-      //var next_state = rule.next_state;
-
-      //if (typeof _this.__rules__[input] !== typeof {})
-        //_this.__rules__[input] = {};
-
-      //if (sign === 'regex'){
-        //select(state_list, current_state).forEach(function(current_state){
-          //_this.__rules__[input][current_state] = next_state;
-        //});
-      //}
-      //else if (sign === 'normal'){
-        //_this.__rules__[input][current_state] = next_state;
-      //}
-
-      ////delete(_this.rules);
-    //});
-  //};
-
-  //FSM.prototype.rule = function rule(r){
-
-    //if(re.test(r)){
-      //this.rules.push(r);
-      //return this;
-    //}
-
-    //throw 'Error: ' + r;
-  //};
-
-  //FSM.prototype.input = function input(input){
-
-    //if (!this.state)
-      //throw 'Error: ' + input;
+  // compile all rules to a hash
+  var complieRules = function complieRules(rules_list){
     
-    //if (!!this.__rules__[input] && !!this.__rules__[input][this.state]){
-      //var current_state = this.state;
-      //var next_state = this.__rules__[input][this.state];
-      
-      //this.emit('change', current_state, next_state, input);
-      //this.emit(this.state+'end', input);
-      //this.emit(this.state+'to'+next_state, input);
-      //this.state = next_state;
-      //this.emit(next_state+'enter', input);
-      //return this;
-    //}
+    // scan all states;
+    var states_list = [];
 
-    //throw 'Error: ' + input;
-  //};
+    rules_list.forEach(function(item, index, self){
+      if (!start_regexp.test(item.current_state))
+        states_list.push(item.current_state);
+      states_list.push(item.next_state);
+    });
+    states_list = uniquefy(states_list);
 
-  //FSM.prototype.start = function start(s){
-    //this.state = s;
-    //this.rule = blocked;
-    //this.start = blocked;
-    //complie(this);
-  //}
+    var result = {};
+    rules_list.forEach(function(item, index, self){
 
-  //var start = function start(s){
-    //this.state = s;
-    //this.start = blocked;
-  //};
+      var sign = item.sign;
+      var input = item.input;
+      var current_state = item.current_state;
+      var next_state = item.next_state;
 
-  //FSM.prototype.clone = function clone(s){
-    //var obj = this.__class__();
-    //obj.rule = blocked;
-    //obj.rules = this.rules;
-    //obj.__rules__ = this.__rules__;
-    //obj.start = start;
+      if (!result[input])
+        result[input] = {};
 
-    //return obj;
-  //};
+      if (sign === 'normal'){
+        result[input][current_state] = next_state;
+      }
+      else if (sign === 'wildcrad'){
+        var wildcrad_regex = RegExp('^'+current_state.replace('*', '\\w+')+'$');
+        states_list
+        .filter(function(item, index, self){
+          return wildcrad_regex.test(item);
+        })
+        .forEach(function(item, index, self){
+          result[input][item] = next_state;
+        });
+      }
+    });
 
-  //window.FSM = FSM;
+    return {result:result,
+      states_list: states_list};
+  };
 
-  //window.car = FSM();
+  var FSM = EventEmitter.extend('FSM')
+
+  .method('constructor', function(){
+    FSM.uper('constructor').apply(this);
+
+    this.__rules__ = {};
+    this.__states_list__ = [];
+
+    this.state = null;
+    this.rules = [];
+
+  })
+  
+  .method('rule', function(r){
+
+    if( this.state )
+      throw 'Error: FSM is aready ran!';
+
+    if(rule_regexp.test(r)){
+      this.rules.push(r);
+      return this;
+    }
+    throw 'Error: ' + r;
+  })
+
+  .method('start', function(state){
+
+    if( this.state )
+      throw 'Error: FSM is aready ran!';
+
+    var complied = complieRules(this.rules);
+    this.__rules__ = complied.result;
+    this.__states_list__ = complied.__states_list__;
+
+    if (__states_list__.indexOf(state) < 0)
+      throw 'Error: state not found!';
+
+    this.state = state;
+    this.emit('start', state);
+    return this;
+
+  })
+
+  .method('input', function(input){
+    if (!this.state)
+      throw 'Error: FSM is not runing!';
+
+    if (!!this.__rules__[input] && !!this.__rules__[input][this.state]){
+      var current_state = this.state;
+      var next_state = this.__rules__[input][this.state];
+
+      this.emit('change', current_state, next_state, input);
+      this.emit(this.state+'end', input);
+      this.emit(this.state+'to'+next_state, input);
+      this.state = next_state;
+      this.emit(next_state+'enter', input);
+      return this;
+    }
+
+    throw 'Error: ' + input;
+  })
+
+  .method('clone', function(){
+
+    if (!this.state)
+      throw 'Error: FSM is not runing!';
+
+    var obj = this.__class__();
+    obj.rules = this.rules;
+    obj.__rules__ = this.__rules__;
+    obj.__states_list__ = this.__states_list__;
+    obj.start(this.state);
+
+    return obj;
+  });
+
+  return FSM;
 });
 
 
