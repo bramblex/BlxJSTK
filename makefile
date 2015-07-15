@@ -15,6 +15,7 @@ modules: $(target_files)
 
 .PHONY: minify
 minify: $(mini_target_files) 
+	mv dist/*.min.js dist/min
 
 $(target_files):dist/%.js:src/%.js
 	tools/UMDT/umdt $< $@
