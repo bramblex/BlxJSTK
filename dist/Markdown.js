@@ -26,15 +26,12 @@
     }
   };
 
-  
-define(['./EventEmitter', './FSM'], function(EventEmitter, FSM){
+  define(function(){
 
-  var PDA = EventEmitter.extend('PDA');
-
-  return PDA;
+  var Markdown = function(stream){
+  };
 
 });
-
 
 
 })(this, typeof define !== 'undefined' && define);

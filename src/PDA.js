@@ -1,7 +1,7 @@
 
-define(['./FSM'], function(FSM){
+define(['./EventEmitter', './FSM'], function(EventEmitter, FSM){
 
-  var PDA = FSM.extend('PDA');
+  var PDA = EventEmitter.extend('PDA');
 
   return PDA;
 
