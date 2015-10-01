@@ -28,3 +28,7 @@ $(mini_target_files):dist/min/%.min.js:dist/%.js
 .PHONY: clean
 clean:
 	rm -r dist
+
+.PHONY: test_node
+test_node: modules
+	node ./test_node.js

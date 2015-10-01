@@ -1,0 +1,4 @@
+
+define(['./Class'], function(Class){
+
+});

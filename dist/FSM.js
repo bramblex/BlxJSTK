@@ -181,5 +181,4 @@ define(['./EventEmitter'], function(EventEmitter){
 });
 
 
-
 })(this, typeof define !== 'undefined' && define);

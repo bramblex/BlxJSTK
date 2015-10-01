@@ -27,38 +27,18 @@
   };
 
   
-// nodejs / iojs only.
-define(function(){
+//define(['./Class'], function(Class){
 
-  var path = require('path');
-  var fs = require('fs');
-  var isjs = /\.js$/
+  //return Regex = Class('Regex', Object)
+  //.method('constructor', function(regex_string){
 
-  return function ReuqireAll(dir, callback){
-    var result = {};
-    var files = fs.readdirSync(dir);
-    //var callback = callback
-    var callback = callback || function(m){return require(m)}
+    //var statck = [];
+    //var l = regex_string.length;
+    //for (var i = 0; i<l; i++){
+    //}
+  //})
 
-    files
-    .filter(function(item){
-      return isjs.test(item);
-    })
-    .map(function(item){
-      return item.replace(isjs, '');
-    })
-    .forEach(function(item, index, self){
-      var name = path.basename(item);
-      var module_path = path.resolve((path.join(dir, item)));
-
-      //result[name] = require(module_path);
-      result[name] = callback(module_path);
-    });
-
-    return result;
-  }
-
-});
+//});
 
 
 })(this, typeof define !== 'undefined' && define);

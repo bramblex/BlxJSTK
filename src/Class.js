@@ -32,6 +32,11 @@ define(function(){
     return this;
   }
 
+  var classmethod = function method(name, func){
+    this[name] = named(name, func);
+    return this;
+  }
+
   var extend = function extend(name){
     return Class(name, this);
   };

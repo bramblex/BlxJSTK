@@ -18,4 +18,6 @@ C.method('constructor', function(){
   console.log('C');
 });
 
-new C();
+C.method('test', function(){console.log('this is C')});
+
+var a = C();

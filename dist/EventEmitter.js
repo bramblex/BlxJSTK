@@ -32,7 +32,7 @@ define(['./Class'], function(Class){
   var EventEmitter = Class('EventEmitter', Object)
 
   .method('constructor', function(){
-    EventEmitter.uper('constructor').apply(this);
+    //EventEmitter.uper('constructor').apply(this);
     this.events = {};
   })
 

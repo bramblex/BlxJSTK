@@ -151,4 +151,3 @@ define(['./EventEmitter'], function(EventEmitter){
 
   return FSM;
 });
-
