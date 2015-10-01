@@ -57,7 +57,11 @@ define(['./Class'], function(Class){
         return parser(stream, i, l);
       });
       if(!t){
-        throw 'Parse Error!';
+        console.log('Parse Error At: ' + i);
+        return false;
+        //throw 'Parse Error!';
+        //console.log('Parse Error At: ' + i);
+        //return tokens;
       }
       else{
         i = t.offset-1;
@@ -66,6 +70,8 @@ define(['./Class'], function(Class){
         }
       }
     }
+
+    tokens.push(utils.createToken('EOF'));
 
     // 返回解析结果
     return tokens;
@@ -77,7 +83,12 @@ define(['./Class'], function(Class){
 
   var utils = {};
   utils.createToken = function createToken(type, content){
-    return {type: type, content: content};
+    if (content){
+      return {type: type, content: content};
+    }
+    else{
+      return {type: type};
+    }
   };
   utils.isD = function isDigit(c){
     var code = c.charCodeAt(0);
@@ -120,7 +131,54 @@ define(['./Class'], function(Class){
     }
   };
 
-  generalparser.literal = function literalParser(stream, i, l){
+  generalparser.number = function numberParser(stream, i, l){
+    if(!utils.isD(stream[i])){
+      return false;
+    }
+    for(var j=i; j<l; j++){
+
+      if(utils.isD(stream[j])){
+        continue;
+      }
+      else if(stream[j] === '.' && utils.isD(stream[j+1])){
+        continue;
+      }
+
+      if(!utils.isD(stream[j])){
+        return {
+          offset: j,
+          token: utils.createToken('number', stream.slice(i, j))
+        }
+      }
+
+    }
+
+  };
+
+  generalparser.string = function stringParser(stream, i, l){
+
+    var sign;
+    if(stream[i] === '"' || stream[i] === "'"){
+      sign = stream[i]; 
+    }
+    else {
+      return false;
+    }
+
+    for(var j=i+1; j<l; j++){
+      if(stream[j] === '\\'){
+        continue;
+      }
+      else if (stream[j] === sign){
+
+        return {
+          offset: j+1,
+          token: utils.createToken('string', stream.slice(i+1, j-1))
+        }
+      }
+    }
+
+    return false;
   };
 
   generalparser.space = function spaceParser(stream, i, l){
@@ -153,12 +211,13 @@ define(['./Class'], function(Class){
     else {
       for (var j=i; j<l; j++){
         if (stream[j] === '\n'){
-          return {
-            offset: j,
-            token: null,
-          }
+          break;
         }
       }
+    }
+    return {
+      offset: j,
+      token: null,
     }
   };
 
